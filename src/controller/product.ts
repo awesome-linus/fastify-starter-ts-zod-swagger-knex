@@ -2,8 +2,6 @@ import { v4 as uuidv4 } from "uuid";
 import { FastifyReply, FastifyRequest } from "fastify";
 import {
   CreateProductInput,
-  GetProductParamsInput,
-  ProductType,
 } from "../schema/product";
 
 export const createProductHandler = async (
@@ -26,26 +24,5 @@ export const createProductHandler = async (
     salesEndsAt: request.body.salesEndsAt,
     createdAt,
     updatedAt,
-  });
-};
-
-export const getProductHandler = async (
-  request: FastifyRequest<{ Params: GetProductParamsInput }>,
-  reply: FastifyReply
-) => {
-  const id = request.params.id;
-
-  console.log(`Fetching product( ${id} )...`);
-
-  reply.code(200).send({
-    id,
-    title: "super product",
-    price: 1000,
-    content: "some content",
-    type: ProductType.game,
-    salesStartsAt: new Date(),
-    salesEndsAt: new Date(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
   });
 };

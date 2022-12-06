@@ -24,6 +24,17 @@ const app: FastifyPluginAsync<AppOptions> = async (
     fastify.addSchema(schema);
   }
 
+  fastify.register(require('fastify-knexjs'), {
+    debug: true,
+    client: 'mysql',
+    connection: {
+      host: '127.0.0.1',
+      user: 'username',
+      password: 'password',
+      database: 'db_name',
+    },  
+  });
+
   void fastify.register(
     fastifySwagger, 
     withRefResolver({
