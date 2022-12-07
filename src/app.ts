@@ -24,7 +24,7 @@ const app: FastifyPluginAsync<AppOptions> = async (
     fastify.addSchema(schema);
   }
 
-  fastify.register(require('fastify-knexjs'), {
+  const config = {
     debug: true,
     client: 'mysql',
     connection: {
@@ -33,7 +33,8 @@ const app: FastifyPluginAsync<AppOptions> = async (
       password: 'password',
       database: 'db_name',
     },  
-  });
+  };
+  fastify.register(require('fastify-knexjs'), require('knex-stringcase')(config));
 
   void fastify.register(
     fastifySwagger, 
