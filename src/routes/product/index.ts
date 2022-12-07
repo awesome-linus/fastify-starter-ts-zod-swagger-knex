@@ -1,9 +1,8 @@
 import { FastifyPluginAsync, FastifyReply, FastifyRequest } from "fastify";
-import { createProductHandler } from "../../controller/product";
 import { $ref } from "../../schema/product";
 import {
   GetProductParamsInput,
-  ProductType,
+  CreateProductInput,
 } from "../../schema/product";
 
 const product: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
@@ -23,24 +22,22 @@ const product: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       request: FastifyRequest<{ Params: GetProductParamsInput }>,
       reply: FastifyReply
     ) { 
-
       const id = request.params.id;
-
-      console.log(`Fetching product( ${id} )...`);
-
-      const product = await fastify.knex.from('product');
-      console.log(product);
+      const product = await fastify
+        .knex('product')
+        .where({ id })
+        .first();
 
       reply.code(200).send({
         id,
-        title: "super product",
-        price: 1000,
-        content: "some content",
-        type: ProductType.game,
-        salesStartsAt: new Date(),
-        salesEndsAt: new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        title: product?.title,
+        price: product?.price,
+        content: product?.content,
+        type: product?.type,
+        salesStartsAt: product?.salesStartsAt,
+        salesEndsAt: product?.salesEndsAt,
+        createdAt: product?.createdAt,
+        updatedAt: product?.updatedAt,
       });
 
     }
@@ -54,7 +51,41 @@ const product: FastifyPluginAsync = async (fastify, opts): Promise<void> => {
       },
       tags: ["Product"],
     },
-    handler: createProductHandler,
+    handler: async function (
+      request: FastifyRequest<{ Body: CreateProductInput }>,
+      reply: FastifyReply
+    ) { 
+      const defaultFields = {
+        createdAt: fastify.knex.fn.now(),
+        updatedAt: fastify.knex.fn.now(),
+      };
+      const [ id ] = await fastify.knex("product").insert({
+        title: request.body.title, 
+        price: request.body.price,
+        content: request.body.content || "",
+        type: request.body.type, 
+        salesStartsAt: request.body.salesStartsAt, 
+        salesEndsAt: request.body.salesEndsAt,
+        ...defaultFields,
+      });
+
+      const product = await fastify
+        .knex("product")
+        .where({ id })
+        .first();
+
+      reply.code(201).send({
+        id,
+        title: product?.title,
+        price: product?.price,
+        content: product?.content,
+        type: product?.type,
+        salesStartsAt: product?.salesStartsAt,
+        salesEndsAt: product?.salesEndsAt,
+        createdAt: product?.createdAt,
+        updatedAt: product?.updatedAt,
+      });
+    }
   });
 }
 

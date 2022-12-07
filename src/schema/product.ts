@@ -17,7 +17,7 @@ const productInput = {
 };
 
 const productGenerated = {
-  id: z.string().uuid().describe("製品ID"),
+  id: z.number().describe("製品ID"),
   createdAt: z.date().describe("作成日"),
   updatedAt: z.date().describe("更新日"),
 };
